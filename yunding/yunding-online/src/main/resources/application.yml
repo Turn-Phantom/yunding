@@ -1,0 +1,71 @@
+server:
+  port: 8880
+  context-path: /yunding/online
+
+logging:
+  level:
+#    root: debug
+    com.online.yunding.common.basecurd.dao : debug
+    com.online.yunding.dao: debug
+
+# mybatis config
+mybatis:
+  type-aliases-package: com.online.yunding.entity
+  mapper-locations: classpath*:com.online.yunding.dao.*/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/yunding?serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
+    username: root
+    password:
+
+# redis 服务配置；不可忽略，服务启动会检查该项
+  redis:
+    host: 127.0.0.1
+    port: 6379
+#  session:
+#    store-type: redis
+
+
+# 云顶在线，自定义配置
+yunding:
+  online:
+    # 浏览器配置
+    browser:
+      rememberMeTime: 30
+    # 验证码配置
+    validateCode:
+      codeLen: 6
+      expireTime: 300 # 单位：秒
+    oauth2:
+      storeType: jwt # token生成/存储方式；redis: 默认生成存储在redis中; jwt: 使用jwt生成密签字符串存储
+      clients[0]:
+        clientId: yundingId
+        clientSecret: yundingSec
+        tokenInvalidTime: 1200 # 令牌失效时间,单位/秒
+        refreshTokenInvalidTime: 604800 # 刷新令牌有效时间,7 天：604800
+
+# 自定义配置化参数
+  params:
+    queueServer: # 队列服务地址； 不可忽略，服务启动会检查该项
+      host: http://127.0.0.1
+      port: 8884
+      url: /yunding/queue
+    videoServer: # 视频服务地址
+      host: http://127.0.0.1
+      port: 8885
+      url: /yunding/video
+    smsService:  # 短信服务商配置
+      karlos:  # 卡洛思平台
+        userId: 4251
+        account: yd8859200
+        password: ydsheng200
+        # 参数：1.用户id；2.账号；3.密码； 4.发送的手机号；5.发送内容；6.定时发送，为空则立即发送； 7.扩展子号，默认留空;  默认utf-8; 发送短信验证码
+        sendUrl: http://www.smsok.com.cn/sms.aspx?action=send&userid=%s&account=%s&password=%s&mobile=%s&content=%s&sendTime=&extno=
+        # 查询短信余额，以及已发送数量; 参数：1.用户id； 2.用户账号； 3.密码
+        querySurplus: http://www.smsok.com.cn/sms.aspx?action=overage&userid=%s&account=%s&password=%s
+    webSocketServer: # 消息推动服务
+      fixedSid: yd001

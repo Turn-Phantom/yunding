@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.online.yunding.dao.UserInfoDao">
+    <sql id="sqlField">
+        t.id,
+        t.phoneNo,
+        t.accountNo,
+        /*t.pwd,*/
+        t.lock_cause lockCause,
+        t.accountStatus,
+        t.realName,
+        t.nickName,
+        t.qqNo,
+        t.identityNo,
+        t.sex,
+        t.parentVipNo,
+        t.bankCardNo1,
+        t.bankCardNo2,
+        t.bankCardNo3,
+        /*t.payPwd,*/
+        t.createTime,
+        t.account_remark accountRemark
+    </sql>
+
+    <!--分页查询用户数据-->
+    <select id="queryUserList" resultType="userInfo">
+        select lgInfo.login_ip loginIp,
+                lgInfo.login_time loginTime,
+                ipAddr.address addrStr,
+                ifnull(t3.income_total, 0) onlineMoney,
+                ifnull(t3.balance, 0) balance,
+                ifnull(t3.recommend_money, 0) recommendMoney,
+                ifnull(t3.freeze_money, 0) freezeMoney,
+        <include refid="sqlField"/>
+        from tb_user_info t
+        left join (select user_id, login_ip, max(login_time) login_time from tb_user_login_his group by user_id) lgInfo
+        on t.id = lgInfo.user_id
+        left join tb_addr_ipAddr ipAddr on ipAddr.ip = lgInfo.login_ip
+        left join tb_user_income t3 on t3.user_id = t.id
+        <where>
+            <if test="params.id != null and params.id != '' ">
+                and t.id like concat('%',#{params.id},'%')
+            </if>
+            <if test="params.accountNo != null and params.accountNo != '' ">
+                and t.accountNo like concat('%',#{params.accountNo},'%')
+            </if>
+            <if test="params.phoneNo != null and params.phoneNo != '' ">
+                and t.phoneNo like concat('%',#{params.phoneNo},'%')
+            </if>
+            <if test="params.parentId != null and params.parentId != '' ">
+                and t.parentVipNo like concat('%',#{params.parentId},'%')
+            </if>
+        </where>
+        order by t.id asc
+    </select>
+
+    <!--获取用户15天登录记录-->
+    <select id="getLoginHistory" resultType="loginHistory" parameterType="Integer">
+        select t.id ,
+                t.user_id userId,
+                t.login_ip loginIp,
+                t.login_date loginDate,
+                t.login_time loginTime,
+                ipAddr.address loginAddr
+        from tb_user_login_his t
+        left join tb_addr_ipAddr ipAddr
+        on ipAddr.ip = t.login_ip
+        where t.user_id = #{userId}
+        order by t.login_time desc
+    </select>
+
+    <!--根据用户账号查询用户信息-->
+    <select id="queryUserInfoByAccount" resultType="userInfo">
+        select ifnull(income.income_total, 0) onlineMoney,
+                ifnull(income.balance, 0) balance,
+                ifnull(income.recommend_money, 0) recommendMoney,
+                ifnull(income.freeze_money, 0) freezeMoney,
+                income.income_total onlineTime,
+                t2.phone phoneCount,
+                t2.password pwdCount,
+                t2.pay_password payPwdCount,
+                t3.sync_yunding syncYd,
+                t3.sync_pwd  syncPwd,
+                t3.sync_pay_pwd syncPayPwd,
+                <include refid="sqlField"/>
+        from tb_user_info t
+        left join tb_user_income income on income.user_id = t.id
+        left join tb_user_update_count t2 on t2.user_id = t.id
+        left join tb_yd_vipInfo t3 on t3.vipNo = t.id
+        where t.accountNo = #{accountNo}
+    </select>
+
+    <!--根据用户id查找用户可更新的数据-->
+    <select id="queryUpdateCountByUserId" resultType="userUpdateCount">
+        select t.phone, t.password, t.pay_password payPassword from tb_user_update_count t where t.user_id = #{userId}
+    </select>
+
+    <!--更新用户修改信息次数-->
+    <update id="updateModifyCount">
+        insert into tb_user_update_count
+        (
+          user_id,
+          <if test="field == 'phoneNo'">
+              phone
+          </if>
+        <if test="field == 'pwd'">
+            password
+        </if>
+        <if test="field == 'payPwd'">
+            pay_password
+        </if>
+        )
+        values
+        (
+          #{userId},
+         1
+        )
+        on duplicate key
+        update
+        <if test="field == 'phoneNo'">
+            phone = (ifnull(phone, 0) + 1)
+        </if>
+        <if test="field == 'pwd'">
+            password = (ifnull(password, 0) + 1)
+        </if>
+        <if test="field == 'payPwd'">
+            pay_password = (ifnull(pay_password, 0) + 1)
+        </if>
+    </update>
+
+    <!--根据用户id查询推荐人收益-->
+    <select id="queryIncomeByUserId" resultType="map">
+        select user_id userId,
+                recommend_money recommendMoney
+        from tb_user_income
+        where user_id = #{userId}
+    </select>
+
+    <!--更新用户推荐收益-->
+    <update id="updateIncomeByUserId">
+        update tb_user_income set recommend_money = #{recommendMoney} where user_id = #{userId}
+    </update>
+</mapper>

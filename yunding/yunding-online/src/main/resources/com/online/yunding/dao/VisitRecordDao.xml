@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.online.yunding.dao.VisitRecordDao">
+
+    <sql id="sqlField">
+        t.visitor,
+        t.visit_id visitId,
+        t.visit_ip visitIp,
+        t.proxy_ip proxyIp,
+        t.visit_count visitCount,
+        t.fictitious_count fictitiousCount,
+        /*t.visit_mac,*/
+        t.browser_ver browserVer,
+        t.sys_ver sysVer,
+        t.ip_address ipAddress,
+        t.visit_source visitSource,
+        t.visit_date visitDate,
+        t.visit_time visitTime,
+        t.update_time updateTime,
+        t.update_count updateCount
+    </sql>
+    <sql id="sqlField1">
+        t1.visitor,
+        t1.visit_id visitId,
+        t1.visit_ip visitIp,
+        t1.proxy_ip proxyIp,
+        t1.visit_count visitCount,
+        t1.fictitious_count fictitiousCount,
+        /*t1.visit_mac,*/
+        t1.browser_ver browserVer,
+        t1.sys_ver sysVer,
+        t1.ip_address ipAddress,
+        t1.visit_source visitSource,
+        t1.visit_date visitDate,
+        t1.visit_time visitTime,
+        t1.update_time updateTime,
+        t1.update_count updateCount
+    </sql>
+    <!--分页查询数据-->
+    <select id="queryVisitDataList" resultType="visitRecord">
+        select tab.*, t2.accountNo accountNo from
+            (
+                select <include refid="sqlField"/>
+                from tb_visit_dayrecord t
+                union all
+                select <include refid="sqlField1"/>
+                from tb_visit_dayrecord_his t1
+            ) tab
+        left join tb_user_info t2 on t2.id = tab.visitId
+        <where>
+            <if test="params.accountNo != null and params.accountNo != ''">
+                and t2.accountNo like concat('%',#{params.accountNo},'%')
+            </if>
+            <if test="params.startDate != null and params.startDate != ''">
+                and tab.visitDate &gt;= #{params.startDate}
+            </if>
+            <if test="params.endDate != null and params.endDate != ''">
+                and tab.visitDate &lt;= #{params.endDate}
+            </if>
+            <if test="params.visitorType != null and params.visitorType != ''">
+                and tab.visitor in
+                  <foreach collection="params.visitorType.split(',')" item="item" open="(" separator="," close=")">
+                      #{item}
+                  </foreach>
+            </if>
+        </where>
+        order by tab.visitDate desc
+    </select>
+
+    <!--查询今日/昨日/总浏览量-->
+    <select id="queryViewCountByPart" resultType="map">
+        select
+            ifnull((select sum(visit_count) todayView from tb_visit_dayrecord where visit_date = date_format(now(), '%Y%m%d')), 0) todayView,
+            ifnull((select sum(visit_count) lastView from tb_visit_dayrecord_his where visit_date = date_format(date_sub(now(),interval 1 day), '%Y%m%d')), 0) lastView,
+            ifnull((select sum(visit_count) viewTotal from tb_visit_visitor_total), 0) totalView
+        from dual
+    </select>
+</mapper>
