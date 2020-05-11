@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="shortcut icon" href="png/sms.png" type="image/x-icon" />
+    <meta charset="UTF-8">
+    <title>号码管理</title>
+</head>
+<style>
+    .table table {
+        width:100%;
+        margin:15px 0
+    }
+    .table th {
+        background-color:#93DAFF;
+        color:#000000
+    }
+    .table,.table th,.table td
+    {
+        font-size:0.95em;
+        text-align:center;
+        padding:4px;
+        border:1px solid #6fcdfe;
+        border-collapse:collapse;
+        width: 600px;
+    }
+    .table tr:nth-child(odd){
+        background-color:#dbf2fe;
+    }
+    .table tr:nth-child(even){
+        background-color:#fdfdfd;
+    }
+</style>
+<body>
+    <div>
+        <form id="submitForm" action="/rest/mobile/msg/importPhoneNo">
+            <label style="font-size: 13px;">导入手机号码：</label>
+            <input id="importFile" type="file" style="border: 1px solid gray" onchange="importChange()">
+            <button id="importBtn" type="button" onclick="importClick()">导入</button>
+            <span id="importing" style="color: #409eff"></span>
+            <span id="tipMsg" style="color: red"></span>
+            <span id="tipMsgSuccess" style="color: #67c23a; font-size: 13px; font-weight: bold"></span>
+        </form>
+    </div>
+    <div style="margin-top: 20px">
+        <button onclick="flushImportData()">新导入数据</button>
+        <button>已发送数据</button>
+        <button>发送失败数据</button>
+    </div>
+    <div style="margin-top: 20px; margin-bottom: 5px">
+        <span>结果：</span>
+        <span id="query_ing" style="color: #409eff"></span>
+        <span id="queryRes" style="color: #67c23a"></span>
+        <span id="queryErr" style="color: red"></span>
+    </div>
+    <div style="margin-top: 3px">
+        <table class="table" id="newImportTable">
+            <!--表头-->
+            <th>序号</th>
+            <th>手机号码</th>
+            <th>新导入</th>
+            <th>导入日期</th>
+        </table>
+        <table class="table" id="sendTable" hidden>
+            <!--表头-->
+            <tr>
+                <th>序号</th>
+                <th>手机号码</th>
+                <th>新导入</th>
+                <th>已发送</th>
+                <th>发送结果</th>
+                <th>导入日期</th>
+            </tr>
+        </table>
+    </div>
+</body>
+<script src="plugin/jquery-3.4.1.min.js" ></script>
+<script>
+    var baseUrl = "http://localhost:8886/yunding/tool";
+
+    var $importFile = $("#importFile");
+    var $importBtn = $("#importBtn");
+    var $importing = $("#importing");
+    var $tipMsg = $("#tipMsg");
+    var $queryIng = $("#query_ing");
+    var $queryErr = $("#queryErr");
+    /** 导入手机号 */
+    function importClick(){
+        var file = $importFile[0].files;
+        if(file.length <= 0){
+            $tipMsg.text("请选择导入文件");
+            return;
+        }
+        var formData = new FormData();
+        formData.append("file", file[0]);
+        try{
+            $importFile.attr("disabled", "disabled");
+            $importBtn.attr("disabled", "disabled");
+            $importing.text("正在导入...");
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/rest/mobile/msg/importPhoneNo",
+                data: formData,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function(res){
+                    $importFile.removeAttr("disabled");
+                    $importBtn.removeAttr("disabled");
+                    $importing.text("");
+                    if(res.returnType === "success"){
+                        document.getElementById("importFile").value = "";
+                        $("#tipMsgSuccess").text(res.content);
+                    } else{
+                        $tipMsg.text(res.content);
+                    }
+                },
+                error: function (err) {
+                    $importFile.removeAttr("disabled");
+                    $importBtn.removeAttr("disabled");
+                    $importing.text("");
+                    $tipMsg.text("导入失败");
+                }
+            });
+        } catch (e) {
+            $importFile.removeAttr("disabled");
+            $importBtn.removeAttr("disabled");
+            $importing.text("");
+        }
+
+    }
+
+    /** 文件选择框change事件 */
+    function importChange(){
+        $("#tipMsg").text("");
+        $("#tipMsgSuccess").text("");
+    }
+
+    var $queryRes = $("#queryRes");
+    /** 刷新导入数据 */
+    function flushImportData(){
+        $queryRes.text("");
+        $queryIng.text("查询中....");
+        var newImportTable = document.getElementById("newImportTable");
+        newImportTable.innerHTML = "";
+        newImportTable.innerHTML = "<tr>\n" +
+            "                <th>序号</th>\n" +
+            "                <th>手机号码</th>\n" +
+            "                <th>新导入</th>\n" +
+            "                <th>导入日期</th>\n" +
+            "            </tr>";
+        $.ajax({
+            type: "get",
+            url: baseUrl + "/rest/mobile/msg/queryImport",
+            data: {},
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(res){
+                $queryIng.text("");
+                if(res.returnType === "success"){
+                    var resData = res.objectData;
+                    $queryRes.text("查询成功, 共: " + resData.length + "条 数据");
+                    resData.forEach(function (item,index) {
+                        var isNew = item.isNew == 1?"是":"否";
+                        var tr = document.createElement("tr");
+                        var html =
+                            "<td>"+ (index + 1) +"</td>" +
+                            "<td>"+ item.phoneNum +"</td>" +
+                            "<td>"+ isNew +"</td>" +
+                            "<td>"+ item.importDate +"</td>";
+                        tr.innerHTML = html;
+                        newImportTable.appendChild(tr);
+                    })
+                } else{
+                    $queryErr.text("查询失败");
+                }
+            },
+            error: function (err) {
+                $queryIng.text("");
+                $queryErr.text("查询失败");
+            }
+        });
+    }
+
+    /**  */
+</script>
+</html>

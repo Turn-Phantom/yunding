@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunding.server.tool.dao.MobileMsgDao">
+
+    <sql id="sqlField">
+          t.id,
+          t.phone_num,
+          t.name,
+          t.sex,
+          t.is_new,
+          t.is_send,
+          t.send_res,
+          t.import_date
+    </sql>
+
+    <select id="queryPhoneNumberData" resultType="mobileNumInfo">
+        select <include refid="sqlField"/>
+        from tb_sms_unsent t
+        <where>
+            <if test="params.phoneNum != null and params.phoneNum != ''">
+                and t.phone_num like concat('%', #{params.phoneNum}, '%')
+            </if>
+            <if test="params.isSend != null and params.isSend != ''">
+                and t.is_send in
+                  <foreach collection="params.isSend.split(',')" item="item" open="(" separator="," close=")">
+                      #{item}
+                  </foreach>
+            </if>
+            <if test="params.sendRes != null and params.sendRes != ''">
+                and t.send_res in
+                    <foreach collection="params.sendRes.split(',')" item="item" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+            </if>
+        </where>
+        order by t.import_date desc
+    </select>
+
+    <!--导入手机号码-->
+    <insert id="importPhoneNum" parameterType="list">
+        insert into tb_sms_unsent(
+          phone_num,
+          name,
+          sex,
+          is_new,
+          is_send,
+          send_res,
+          import_date
+        ) values
+        <foreach collection="mobileNumInfoList" item="item" separator=",">
+            (
+              #{item.phoneNum, jdbcType=VARCHAR},
+              #{item.name, jdbcType=VARCHAR},
+              #{item.sex, jdbcType=INTEGER},
+              #{item.isNew, jdbcType=INTEGER},
+              #{item.isSend, jdbcType=INTEGER},
+              #{item.sendRes, jdbcType=INTEGER},
+              #{item.importDate, jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
+    <!--查询新导入的数据-->
+    <select id="queryImport" resultType="mobileNumInfo">
+        select phone_num, is_new, import_date from tb_sms_unsent where is_new = 1 order by import_date desc
+    </select>
+
+    <!--根据id删除数据-->
+    <delete id="deletePhoneNum">
+        delete from tb_sms_unsent where id in
+          <foreach collection="id.split(',')" item="item" open="(" separator="," close=")">
+              #{item}
+          </foreach>
+    </delete>
+
+    <!--查询未发送过的手机号码列表-->
+    <select id="queryPhoneNoList" resultType="String">
+        select distinct phone_num from tb_sms_unsent where is_new = 1;
+    </select>
+
+    <!-- 更新手机状态 -->
+    <update id="updatePhoneStatus">
+        update tb_sms_unsent
+        set is_new = 0 , is_send = 1, send_res = #{status}
+        where phone_num = #{phoneNum}
+    </update>
+</mapper>

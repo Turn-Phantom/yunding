@@ -1,0 +1,33 @@
+server:
+  port: 8886
+  servlet:
+    context-path: /yunding/tool
+
+logging:
+  level:
+#    root: debug
+    com.yunding.server.common.basecurd.dao : debug
+    com.yunding.server.tool.dao: debug
+
+spring:
+  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://127.0.0.1:3306/yunding?serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
+#    username: root
+#    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://139.199.57.86:3306/test?serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
+    username: tempuser
+    password: yd8859200.
+  devtools:
+    restart:
+      additional-paths: static/**
+      enabled: true
+# mybatis 相关设置
+mybatis:
+  type-aliases-package: com.yunding.server.tool.entity
+  mapper-locations: classpath*:com.yunding.server.tool.dao.*/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+

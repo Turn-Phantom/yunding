@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunding.server.video.dao.DbSystemParamsDao">
+
+    <sql id="sqlField">
+        t.id,
+        t.par_key parKey,
+        t.par_val parVal,
+        t.par_state parState,
+        t.par_desc parDesc,
+        t.spare_field spareField
+    </sql>
+
+    <!--查询所有系统参数-->
+    <select id="queryAllParams" resultType="dbSystemParams">
+        select <include refid="sqlField"/>
+        from tb_sys_params t
+    </select>
+
+    <!--根据参数key更新系统参数-->
+    <update id="updateSysParByKey" parameterType="Map">
+        update tb_sys_params
+        set
+        <if test="parVal != null">
+            par_val =#{parVal, jdbcType=VARCHAR},
+        </if>
+        <if test="parState != null">
+            par_state =#{parState, jdbcType=INTEGER},
+        </if>
+        <if test="parDesc != null">
+            par_desc =#{parDesc, jdbcType=VARCHAR},
+        </if>
+        <if test="spareField != null">
+            spare_field =#{spareField, jdbcType=VARCHAR},
+        </if>
+        where par_key = #{parKey}
+    </update>
+
+</mapper>

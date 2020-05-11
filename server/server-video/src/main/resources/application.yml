@@ -1,0 +1,47 @@
+server:
+  port: 8885
+  servlet:
+    context-path: /yunding/video
+
+logging:
+  level:
+#    root: debug
+    com.yunding.server.common.basecurd.dao : debug
+    com.yunding.server.video.dao: debug
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/yunding?serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
+    username: root
+    password:
+# redis 服务配置；不可忽略，服务启动会检查该项
+  redis:
+    host: 127.0.0.1
+    port: 6379
+
+# mybatis 相关设置
+mybatis:
+  type-aliases-package: com.yunding.server.video.entity
+  mapper-locations: classpath*:com.yunding.server.video.dao.*/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+# 自定义参数配置
+yunding:
+  video:
+    videoConfig: # 影片资源配置
+      videoListUrl: http://api.vp.vscp168.com/api/video/all?sid=BR4XPMAY2X&format=json # 初始化清单数据地址
+      videoChangeUrl: http://api.vp.vscp168.com/api/video/all/modify?sid=BR4XPMAY2X&date=%s&format=json # 有调整的影片数据； 参数：日期
+      videoUpdateUrl: http://api.vp.vscp168.com/api/video/all/release?sid=BR4XPMAY2X&date=%s&format=json # 获取新增的影片数据； 参数：日期
+#      videoSingleUrl: http://api.vp.vscp168.com/api/video/single?sid=BR4XPMAY2X&cid=%s&token=%s&dns=xxxxx # 获取指定影片数据资料；
+      accountId: 693051392
+      sid: BR4XPMAY2X
+      secret: 01E4ATDERV2SW0AV
+      videoDns: wm02.f82ew.cn
+
+# 调度配置
+schedule:
+  videoUpdate:
+    cron: 0 0 4,22 * * ? # 每天凌晨4点与晚上10点执行一次
+

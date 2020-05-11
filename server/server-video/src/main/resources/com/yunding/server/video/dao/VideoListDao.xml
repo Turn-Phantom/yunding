@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunding.server.video.dao.VideoListDao">
+
+    <sql id="sqlField">
+        t.id ,
+        t.cid ,
+        t.state ,
+        t.video_class videoClass,
+        t.is_1200 imgQuality1,
+        t.is_600 imgQuality2,
+        t.is_300 imgQuality3,
+        t.video_url videoUrl,
+        t.pic_url picUrl,
+        t.video_name videoName,
+        t.actor ,
+        t.video_tag videoTag,
+        t.vendor ,
+        t.video_desc videoDesc,
+        t.update_time updateTime,
+        t.enable_date enableDate ,
+        t.operate_time operateTime
+    </sql>
+
+    <!--汇入影片清单-->
+    <insert id="insertVideoList" parameterType="list">
+        insert into tb_video_list
+        (
+            cid ,
+            state ,
+            video_class ,
+            is_1200 ,
+            is_600 ,
+            is_300 ,
+            video_url ,
+            pic_url ,
+            video_name ,
+            actor ,
+            video_tag ,
+            vendor ,
+            video_desc ,
+            update_time ,
+            click_count ,
+            enable_date  ,
+            operate_time
+        )
+        values
+        <foreach collection="videoListList" item="item" separator=",">
+            (#{item.cid, jdbcType=VARCHAR},
+            #{item.state, jdbcType=INTEGER},
+            #{item.videoClass, jdbcType=VARCHAR},
+            #{item.unKnow1, jdbcType=INTEGER},
+            #{item.unKnow2, jdbcType=INTEGER},
+            #{item.unKnow3, jdbcType=INTEGER},
+            #{item.videoUrl, jdbcType=VARCHAR},
+            #{item.picUrl, jdbcType=VARCHAR},
+            #{item.videoName, jdbcType=VARCHAR},
+            #{item.actor, jdbcType=VARCHAR},
+            #{item.videoTag, jdbcType=VARCHAR},
+            #{item.vendor, jdbcType=VARCHAR},
+            #{item.videoDesc, jdbcType=VARCHAR},
+            #{item.updateTime, jdbcType=INTEGER},
+            #{item.clickCount, jdbcType=INTEGER},
+            #{item.enableDate, jdbcType=INTEGER},
+            #{item.operateTime, jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+
+    <!--分页查询数据-->
+    <select id="queryPageByClass" resultType="videoList">
+        select playLog.click_play playCount,
+                <include refid="sqlField"/>
+        from tb_video_list t
+        left join tb_video_play_log playLog
+        on playLog.video_id = t.cid
+        <where>
+            <if test="params.specialVideo != null and params.specialVideo == 'mianfei'">
+               and t.is_300 = 1 and t.is_1200 = 0 and t.is_600 = 0
+            </if>
+            <if test="params.specialVideo != null and params.specialVideo == 'login'">
+                and (t.is_1200 = 1 or t.is_600 = 1)
+                <if test="params.videoClass != null and params.videoClass != ''">
+                    and t.video_class = #{params.videoClass}
+                </if>
+            </if>
+        </where>
+        order by t.enable_date desc
+    </select>
+
+    <!--根据id获取影片数据-->
+    <select id="queryVideoByVideoId" resultType="videoList">
+        select playLog.click_play playCount,
+                <include refid="sqlField"/>
+        from tb_video_list t
+        left join tb_video_play_log playLog
+        on playLog.video_id = t.cid
+        where t.cid = #{videoId}
+    </select>
+
+    <!--根据影片id获取清单数据-->
+    <select id="queryVideoList" resultType="videoList">
+        select <include refid="sqlField"/>
+        from tb_video_list t
+        where t.cid in
+          <foreach collection="videoIds" item="item" open="(" separator="," close=")">
+              #{item}
+          </foreach>
+        order by t.enable_date desc
+    </select>
+
+    <!--获取热播数据-->
+    <select id="queryHotVideo" resultType="videoList">
+        select <include refid="sqlField"/>
+        from tb_video_list t
+        left join tb_video_play_log playLog
+        on playLog.video_id = t.cid
+        where t.is_1200 = 1 or t.is_600 = 1
+        order by playLog.click_play desc, t.enable_date desc  limit 20
+    </select>
+
+    <!--查询免费影片的cid-->
+    <select id="queryVideoListByFree" resultType="String" >
+        select cid from tb_video_list where is_300 = 1 and is_1200 = 0 and is_600 = 0
+    </select>
+
+    <!--查询推荐影片数据-->
+    <select id="queryRecommendVideo" resultType="videoList" parameterType="String">
+        select <include refid="sqlField"/>
+        from tb_video_list t
+        left join tb_video_play_log playLog
+        on playLog.video_id = t.cid
+        <where>
+            <choose>
+                <when test="videoClass == 'hotVideo'">
+                    t.cid != #{currVideoId} and (t.is_1200 = 1 or t.is_600 = 1)
+                </when>
+                <when test="videoClass == 'mianfei'">
+                    t.is_300 = 1 and t.is_1200 = 0 and t.is_600 = 0
+                </when>
+                <otherwise>
+                    t.video_class = #{exchangeCla}
+                    and (t.is_1200 = 1 or t.is_600 = 1)
+                </otherwise>
+            </choose>
+            and t.cid != #{currVideoId}
+        </where>
+        order by playLog.click_play desc, t.enable_date desc limit 10
+    </select>
+
+    <!--查询前10条高清，且播放频率最高的视频-->
+    <select id="queryHeightVideo" resultType="videoList">
+        select  <include refid="sqlField"/>
+        from tb_video_list t
+        left join tb_video_play_log t1 on t1.video_id = t.cid
+        where t.is_1200 = 1
+        order by t1.click_play desc limit 10
+    </select>
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yunding.server.queue.dao.UserCalculateDao">
+
+    <!--根据用户id查询数据-->
+    <select id="queryIncomeByUserId" resultType="userIncome">
+        select user_id userId,
+                online_time_total onlineTimeTotal,
+                income_total incomeTotal,
+                balance ,
+                visit_count visitCount
+        from tb_user_income
+        where user_id = #{userId}
+    </select>
+
+    <!--更新用户访问总量-->
+    <update id="updateUserVisitView">
+        update tb_user_income set visit_count = #{visitCount} where user_id = #{userId}
+    </update>
+
+    <!--更新用户收益-->
+    <update id="updateUserIncome">
+        update tb_user_income set online_time_total = #{onlineSec}, income_total = #{incomeTol} where user_id = #{userId}
+    </update>
+
+    <!--根据用户id，查询下级代理id-->
+    <select id="queryChildId" resultType="Integer">
+        select id from tb_user_info where id in (select id from tb_user_info where parentVipNo = #{userId})
+    </select>
+
+    <!--(更新操作)清除前一天的用户修改记录-->
+    <update id="clearUserUpdateRecordByLast">
+        update tb_user_update_count set phone = 0, password = 0, pay_password = 0
+    </update>
+</mapper>
