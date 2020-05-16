@@ -47,4 +47,9 @@ public interface FinalUrl {
     String WEB_SOCKET_LINK = "/web/socket/*";
     // 放行获取广告链接
     String ADVERT_LINK_DATA = "/rest/advert/manage/queryAdvertByPagePos";
+
+    // 放行验证重置密码验证码请求
+    String RESET_PASSWORD_URL_SMSCODE = "/rest/user/resetPasswordCodeIsCorrect";
+    String RESET_PASSWORD_URL_PASSWORD = "/rest/user/resetPasswordForPhone";
+
 }

@@ -23,6 +23,7 @@ public class ValidateCodeController {
 
     /***
      * @desc 发送短信验证码
+     *  smsType 验证码类型： 1 注册； 2 登陆； 3 绑定； 4 重置密码
      * @param request 请求体
      * @return void
      * @date 2020-03-22

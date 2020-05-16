@@ -72,7 +72,9 @@ public class CustomResourceServer extends ResourceServerConfigurerAdapter {
                         FinalUrl.QUERY_SCROLL_DATA, // 获取首页滚动数据，虚拟
                         FinalUrl.QUERY_SMS_SURPLUS, // 查询短信剩余量
                         FinalUrl.WEB_SOCKET_LINK, // web socket 连接
-                        FinalUrl.ADVERT_LINK_DATA // 获取广告链接数据
+                        FinalUrl.ADVERT_LINK_DATA, // 获取广告链接数据
+                        FinalUrl.RESET_PASSWORD_URL_SMSCODE, // 放行验证重置密码验证码请求
+                        FinalUrl.RESET_PASSWORD_URL_PASSWORD // 放行重置密码请求
                 )
                 .permitAll() // 放行上面的url
                 .anyRequest() // 任何请求

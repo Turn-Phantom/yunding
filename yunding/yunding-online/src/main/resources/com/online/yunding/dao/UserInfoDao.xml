@@ -141,4 +141,20 @@
     <update id="updateIncomeByUserId">
         update tb_user_income set recommend_money = #{recommendMoney} where user_id = #{userId}
     </update>
+
+    <!--根据用户手机号码更新用户密码-->
+    <update id="updateUserInfoByPhoneNo">
+        update tb_user_info set pwd = #{password} where phoneNo = #{phoneNum}
+    </update>
+
+    <!--根据用户id，查询用户收益数据-->
+    <select id="queryUserIncomeBalance" resultType="userInfo" parameterType="Integer">
+        select 	ifnull(t1.balance, 0) balance,
+				ifnull(t1.income_total, 0) onlineMoney,
+				ifnull(t1.recommend_money, 0) recommendMoney,
+				ifnull(t1.freeze_money, 0) freezeMoney
+        from tb_user_info t
+        left join tb_user_income t1 on t1.user_id = t.id
+        where t.id = #{userId}
+    </select>
 </mapper>

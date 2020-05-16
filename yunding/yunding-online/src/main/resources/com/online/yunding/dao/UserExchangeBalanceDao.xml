@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.online.yunding.dao.UserExchangeBalanceDao">
+
+    <!--查询余额转移所有订单-->
+    <select id="queryExchangeOrderList" resultType="userExchangeBalance">
+        select id,
+                money,
+                apply_time applyTime,
+                check_status checkStatus,
+                remark
+        from tb_user_exc_balance t
+        where user_id = #{userId}
+    </select>
+</mapper>

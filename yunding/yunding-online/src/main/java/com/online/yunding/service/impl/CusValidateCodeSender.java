@@ -29,14 +29,9 @@ public class CusValidateCodeSender implements ValidateCodeSender {
 
     @Override
     public void send(String mobile, String code, Integer smsType,ServletWebRequest request) {
-        if(true){
-            System.out.println(mobile);
-            System.out.println(code);
-            return;
-        }
         Integer userId;
         try {
-            userId = ServletRequestUtils.getIntParameter(request.getRequest(), "");
+            userId = ServletRequestUtils.getIntParameter(request.getRequest(), "userId");
         } catch (ServletRequestBindingException e) {
             logger.error("非法绑定参数：获取用户id失败");
             throw new ValidateCodeException("parse userId illegal");
@@ -51,11 +46,19 @@ public class CusValidateCodeSender implements ValidateCodeSender {
             if(null == userId){
                 throw new ValidateCodeException("userId is null");
             }
+        } else if(smsType == 4){
+            validCodeTypeStr = "重置密码";
         } else{
             logger.error("非法参数：未知的手机验证码类型" + smsType);
             throw new ValidateCodeException("unKnown sms type");
         }
         String content = String.format(ConstantUtil.SMS_SEND_MSG, validCodeTypeStr, code);
+        // 测试发送验证码 TODO
+        /*if(true){
+            System.out.println(code);
+            System.out.println(mobile);
+            return;
+        }*/
         // 发送验证码
         Map<String, String> sendRet = smsInterfaceService.sendSmsCode(mobile, content);
         if(sendRet.isEmpty()){

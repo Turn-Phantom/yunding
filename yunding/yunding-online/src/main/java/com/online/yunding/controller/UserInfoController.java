@@ -12,10 +12,14 @@ import com.online.yunding.entity.YdVipInfo;
 import com.online.yunding.service.UserInfoService;
 import com.sun.org.apache.regexp.internal.RE;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.ServletWebRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -31,6 +35,8 @@ public class UserInfoController {
 
     @Autowired
     private UserInfoService userInfoService;
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /** 分页查询用户信息 */
     @GetMapping("/queryUserList")
@@ -292,6 +298,56 @@ public class UserInfoController {
             }
         }
         return ReturnData.success("操作成功");
+    }
+
+    /** 校验验证码是否正确 */
+    @PostMapping("/resetPasswordCodeIsCorrect")
+    public ReturnData resetPasswordCodeIsCorrect(String code, HttpServletRequest request){
+        if(StringUtils.isBlank(code)){
+            return ReturnData.error("验证码不能为空！");
+        }
+        String validRes = userInfoService.smsCodeValidate(code, new ServletWebRequest(request));
+        if(!validRes.equals(ReturnData.SUCCESS)){
+            return ReturnData.error(validRes);
+        }
+        return ReturnData.success("验证成功");
+    }
+
+    /** 通过手机验证码找回密码 */
+    @PostMapping("/resetPasswordForPhone")
+    public ReturnData resetPasswordForPhone(String pwd, String confirmPwd, String phoneNo){
+        if(StringUtils.isBlank(pwd) || StringUtils.isBlank(confirmPwd)){
+            return ReturnData.error("密码不能为空");
+        }
+        if(StringUtils.isBlank(phoneNo)){
+            return ReturnData.error("手机号码不能为空");
+        }
+        if(!StringUtils.equals(pwd, confirmPwd)){
+            return ReturnData.error("两次密码输入不一致");
+        }
+        // 根据手机号更新用户密码
+        String password = null;
+        try {
+            password = PasswordUtil.encode(pwd);
+        } catch (Exception e) {
+            logger.error("重置密码失败: ", e);
+            return ReturnData.error("重置密码失败，请联系客服");
+        }
+        int updateNum = userInfoService.updateUserInfoByPhoneNo(password, phoneNo);
+        if(updateNum <= 0){
+            return ReturnData.error("重置密码失败，请联系客服");
+        }
+        return ReturnData.success("重置成功！");
+    }
+
+    /** 根据用户id，查询用户收益 */
+    @GetMapping("/queryUserIncomeBalance")
+    public ReturnData queryUserIncomeBalance(Integer userId){
+        if(null == userId){
+            return ReturnData.error("用户id不能为空");
+        }
+        BigDecimal money = userInfoService.queryUserIncomeBalance(userId);
+        return ReturnData.successData(money);
     }
 }
 

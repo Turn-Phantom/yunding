@@ -3,8 +3,10 @@ package com.online.yunding.service;
 import com.online.yunding.common.basecurd.entity.Pagination;
 import com.online.yunding.entity.LoginHistory;
 import com.online.yunding.entity.UserInfo;
+import org.springframework.web.context.request.ServletWebRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -39,4 +41,13 @@ public interface UserInfoService {
 
     /** 根据用户id，增加用户金额 */
     void addBalance(Integer userId);
+
+    /** 短信验证码校验 */
+    String smsCodeValidate(String validateCode, ServletWebRequest webRequest);
+
+    /** 根据手机号码更新用户密码 */
+    int updateUserInfoByPhoneNo(String password, String phoneNum);
+
+    /** 根据用户id，查询用户收益 */
+    BigDecimal queryUserIncomeBalance(Integer userId);
 }

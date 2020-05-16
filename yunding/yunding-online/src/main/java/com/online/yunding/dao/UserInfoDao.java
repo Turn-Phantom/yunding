@@ -36,4 +36,10 @@ public interface UserInfoDao {
 
     /** 更新用户推荐收益 */
     int updateIncomeByUserId(@Param("recommendMoney") BigDecimal recommendMoney, @Param("userId") Integer userId);
+
+    /** 根据手机号码更新用户密码 */
+    int updateUserInfoByPhoneNo(@Param("password") String password, @Param("phoneNum") String phoneNum);
+
+    /** 根据用户id，查询用户收益 */
+    UserInfo queryUserIncomeBalance(Integer userId);
 }

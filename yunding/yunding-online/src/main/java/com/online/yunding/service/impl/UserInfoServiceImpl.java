@@ -376,7 +376,8 @@ public class UserInfoServiceImpl implements UserInfoService {
     }
 
     /** 校验短信验证码 */
-    private String smsCodeValidate(String validateCode, ServletWebRequest webRequest){
+    @Override
+    public String smsCodeValidate(String validateCode, ServletWebRequest webRequest){
         // 校验短信验证码是否正确
         ValidateCode code = validateCodeRepository.getCode(webRequest, ValidateCodeType.SMS);
         if(code == null){
@@ -521,5 +522,19 @@ public class UserInfoServiceImpl implements UserInfoService {
         }
         user.setQqNo(userInfo.getQqNo());
         return ReturnData.SUCCESS;
+    }
+
+    /** 根据手机号码更新用户密码 */
+    @Override
+    public int updateUserInfoByPhoneNo(String password, String phoneNum) {
+        return userInfoDao.updateUserInfoByPhoneNo(password, phoneNum);
+    }
+
+    /** 根据用户id，查询用户收益 */
+    @Override
+    public BigDecimal queryUserIncomeBalance(Integer userId) {
+        UserInfo userInfo = userInfoDao.queryUserIncomeBalance(userId);
+        // 余额 + 在线收益 + 推荐收益 - 冻结金额
+        return userInfo.getBalance().add(userInfo.getOnlineMoney()).add(userInfo.getRecommendMoney()).subtract(userInfo.getFreezeMoney());
     }
 }
