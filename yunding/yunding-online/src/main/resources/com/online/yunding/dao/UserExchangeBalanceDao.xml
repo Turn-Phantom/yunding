@@ -3,14 +3,51 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.online.yunding.dao.UserExchangeBalanceDao">
 
+    <sql id="sqlField">
+        t.id,
+        t.user_id userId,
+        t.money,
+        t.apply_time applyTime,
+        t.check_status checkStatus,
+        t.check_time checkTime,
+        t.remark
+    </sql>
+
+    <!--分页查询余额转移所有订单-->
+    <select id="queryExchangeOrderPageList" resultType="userExchangeBalance">
+        select <include refid="sqlField" />
+         from tb_user_exc_balance t
+        <where>
+            <if test="params.orderId != null and params.orderId != ''">
+                and id like concat('%',#{params.orderId},'%')
+            </if>
+            <if test="params.applyDate != null and params.applyDate != ''">
+                and from_unixtime(apply_time/1000, '%Y%m%d') = #{params.applyDate}
+            </if>
+            <if test="params.checkStatus != null and params.checkStatus != ''">
+                and check_status in
+                <foreach collection="params.checkStatus.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        order by t.id desc
+    </select>
+
     <!--查询余额转移所有订单-->
     <select id="queryExchangeOrderList" resultType="userExchangeBalance">
-        select id,
-                money,
-                apply_time applyTime,
-                check_status checkStatus,
-                remark
+        select <include refid="sqlField" />
         from tb_user_exc_balance t
         where user_id = #{userId}
+        order by t.id desc
+    </select>
+
+    <!--根据状态查询转换余额订单数据-->
+    <select id="queryOrderByStatus" resultType="userExchangeBalance">
+        select t1.accountNo userAccount,
+                <include refid="sqlField" />
+        from tb_user_exc_balance t
+        join tb_user_info t1 on t1.id = t.user_id
+        where t.check_status = #{checkStaus}
     </select>
 </mapper>

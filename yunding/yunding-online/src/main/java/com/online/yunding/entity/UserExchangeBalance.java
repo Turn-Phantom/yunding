@@ -51,4 +51,6 @@ public class UserExchangeBalance {
     // 备注
     @Column(name = "remark")
     private String remark;
+
+    private String userAccount;
 }
