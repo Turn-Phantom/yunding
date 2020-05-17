@@ -1,5 +1,7 @@
 package com.online.yunding.service;
 
+import com.online.yunding.entity.UserAdjustMoney;
+
 import java.util.Map;
 
 /**
@@ -10,4 +12,7 @@ public interface ManageUserService {
 
     /** 查询用户相关数据 */
     Map<String, Object> queryUserRelateInfo();
+
+    /** 调整用户账号余额 */
+    String adjustUserMoney(UserAdjustMoney userAdjustMoney);
 }

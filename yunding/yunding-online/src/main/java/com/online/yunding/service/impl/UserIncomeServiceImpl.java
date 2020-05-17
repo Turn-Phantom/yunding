@@ -22,4 +22,10 @@ public class UserIncomeServiceImpl implements UserIncomeService {
     public int updateFreezeMoney(Integer userId, BigDecimal freezeMoney) {
         return userIncomeDao.updateFreezeMoney(userId, freezeMoney);
     }
+
+    /** 更新用户余额 */
+    @Override
+    public int updateUserIncomeForBalance(Integer userId, BigDecimal balance) {
+        return userIncomeDao.updateUserIncomeForBalance(userId, balance);
+    }
 }

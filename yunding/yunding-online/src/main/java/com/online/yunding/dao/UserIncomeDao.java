@@ -12,4 +12,7 @@ public interface UserIncomeDao {
 
     /** 更新用户冻结金额：在原有基础上，增加冻结金额 */
     int updateFreezeMoney(@Param("userId") Integer userId, @Param("freezeMoney") BigDecimal freezeMoney);
+
+    /** 更新用户余额 */
+    int updateUserIncomeForBalance(@Param("userId") Integer userId, @Param("balance") BigDecimal balance);
 }

@@ -4,6 +4,7 @@ import com.online.yunding.common.basecurd.entity.ReturnData;
 import com.online.yunding.common.basecurd.service.BaseService;
 import com.online.yunding.common.utils.PasswordUtil;
 import com.online.yunding.entity.ManagerUser;
+import com.online.yunding.entity.UserAdjustMoney;
 import com.online.yunding.entity.UserInfo;
 import com.online.yunding.service.ManageUserService;
 import com.online.yunding.service.SmsInterfaceService;
@@ -12,8 +13,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.math.BigDecimal;
 
 /**
  * @desc
@@ -77,5 +81,21 @@ public class ManageUserController {
             return ReturnData.error("重置用户密码失败！");
         }
         return ReturnData.success("重置成功！");
+    }
+
+    /** 调整金额 */
+    @PostMapping("/adjustMoney")
+    public ReturnData adjustMoney(UserAdjustMoney userAdjustMoney){
+        if(null == userAdjustMoney){
+            return ReturnData.error("对象参数为空");
+        }
+        if(null == userAdjustMoney.getUserId() || null == userAdjustMoney.getMoney() || StringUtils.isBlank(userAdjustMoney.getRemark())){
+            return ReturnData.error("请求参数不完整");
+        }
+        String ret = manageUserService.adjustUserMoney(userAdjustMoney);
+        if(!ReturnData.SUCCESS.equals(ret)){
+            return ReturnData.error(ret);
+        }
+        return ReturnData.success("调整成功！");
     }
 }
