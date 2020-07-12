@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.cloud.online.dao.AdvertManageDao">
+
+    <sql id="sqlField">
+        t.id ,
+        t.adv_source advSource,
+        t.page_pos pagePos,
+        t.adv_pos advPos,
+        t.adv_link advLink,
+        t.img_link imgLink,
+        t.img_size imgSize,
+        t.pre_img preImg,
+        t.max_img maxImg,
+        t.create_time createTime,
+        t.update_time updateTime,
+        t.remark
+    </sql>
+
+    <!--分页查询列表数据-->
+    <select id="queryAdvertDataList" resultType="advertManage">
+        select <include refid="sqlField"/>
+        from tb_advert_manage t
+        <where>
+            <if test="params.pagePos != null and params.pagePos != ''">
+                and t.page_pos in
+                  <foreach collection="params.pagePos.split(',')" item="item" open="(" separator="," close=")">
+                      #{item}
+                  </foreach>
+            </if>
+        </where>
+        order by t.id desc
+    </select>
+
+    <!--根据字段查询-->
+    <select id="queryDataByField" resultType="advertManage">
+        select <include refid="sqlField"/>
+        from tb_advert_manage t
+        where t.page_pos = #{pagePos}
+        and t.adv_pos = #{advPos}
+    </select>
+
+    <!--根据页面位置，获取广告链接数据-->
+    <select id="queryAdvertByPagePos" resultType="advertManage">
+        select t.adv_pos advPos,
+                t.adv_link advLink,
+                t.img_link imgLink,
+                t.img_size imgSize
+        from tb_advert_manage t
+        where t.page_pos = #{pagePos}
+    </select>
+</mapper>

@@ -1,0 +1,41 @@
+# 服务配置
+server:
+  port: 8880
+
+# 日志配置
+logging:
+  level:
+#    root: debug
+    com.li.cloud.common.basecurd.dao : debug
+    com.li.cloud.online.dao: debug
+
+# mybatis 配置
+mybatis:
+  type-aliases-package: com.li.cloud.online.entity
+  mapper-locations: classpath*:com.li.cloud.online.dao.*/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+# spring应用配置
+spring:
+  application:
+    name: yunding-online # 当前微服务名称
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/yunding?serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
+    username: root
+    password:
+
+# redis 服务配置；不可忽略，服务启动会检查该项
+  redis:
+    host: 10.101.66.107
+    port: 6379
+#  session:
+#    store-type: redis
+
+# 服务治理配置
+eureka:
+  client:
+    enabled: true
+    service-url: # 指定服务注册中心地址
+      defaultZone: http://registry1:8051/cloud/registry/center/eureka/,http://registry2:8052/cloud/registry/center/eureka/

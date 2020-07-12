@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.cloud.online.dao.UserTransferAccountDao">
+
+    <sql id="sqlField">
+        t.id ,
+        /*t.user_id userId,*/
+        t.order_type orderType,
+        t.transfer_name transferName,
+        t.transfer_bank_name transferBankName,
+        t.transfer_account transferAccount,
+        t.transfer_money transferMoney,
+        /*t.transfer_type transferType,*/
+        t.transfer_date transferDate,
+        t.create_time createTime,
+        t.check_status checkStatus,
+        t.check_time checkTime,
+        t.exception_msg exceptionMsg,
+        t.remark
+    </sql>
+
+    <!--查看我的收益数据-->
+    <select id="queryIncomeData" resultType="userOnlineTime">
+        (
+            select t.online_sec, t.child_online, t.online_date
+            from tb_user_online t
+            join tb_user_info userInfo on userInfo.id = t.user_id
+            where t.user_id = #{userId} and userInfo.accountNo = #{account}
+        )
+        union
+        (
+            select t.online_sec, t.child_online, t.online_date
+            from tb_user_online_his t
+            join tb_user_info userInfo on userInfo.id = t.user_id
+            where t.user_id = #{userId} and userInfo.accountNo = #{account}
+            )
+        order by online_date desc
+    </select>
+
+    <!--根据用户id查询用户转账记录-->
+    <select id="queryTransData" resultType="userTransferAccountOrder">
+        select dic.dic_desc transferType,
+                <include refid="sqlField"/>
+        from tb_user_transfer_accn t
+        left join tb_data_dictionary dic on dic.dic_val = t.transfer_type and dic.dic_key = 'transferAccountType'
+        where t.user_id = #{userId} and t.order_type = #{orderType}
+        order by t.create_time desc
+    </select>
+
+    <!--获取用户可用余额-->
+    <select id="queryUserAvailableBalance" resultType="userIncome">
+        select ifnull(t.income_total, 0) incomeTotal,
+                ifnull(t.balance, 0) balance,
+                ifnull(t.recommend_money, 0) recommendMoney,
+                ifnull(t.freeze_money, 0) freezeMoney
+        from tb_user_income t
+        join tb_user_info userInfo on userInfo.id = t.user_id
+        where t.user_id = #{userId} and userInfo.accountNo = #{account}
+    </select>
+
+    <!--更新用户冻结余额-->
+    <update id="freezeMoney">
+        update tb_user_income t, (select freeze_money from tb_user_income where user_id = #{userId}) temp
+        set t.freeze_money = (temp.freeze_money + #{transferMoney})
+        where t.user_id = #{userId}
+    </update>
+
+    <!--查询用户充值/提款数据（未审核-->
+    <select id="queryUncheckData" resultType="userTransferAccountOrder">
+        select t.id,
+                t.user_id userId,
+                t.order_type orderType,
+                t.transfer_money transferMoney,
+                t.create_time createTime,
+                t1.accountNo accountNo
+        from tb_user_transfer_accn t
+        join tb_user_info t1 on t1.id = t.user_id
+        where t.check_status = 0
+        order by t.create_time desc
+    </select>
+
+    <!--根据id查询数据-->
+    <select id="queryDataById" resultType="userTransferAccountOrder">
+        select t.user_id userId,
+                t1.accountNo accountNo,
+                t2.dic_desc transferType,
+                <include refid="sqlField"/>
+        from tb_user_transfer_accn t
+        join tb_user_info t1 on t1.id = t.user_id
+        left join tb_data_dictionary t2 on t2.dic_val = t.transfer_type and t2.dic_key = 'transferAccountType'
+        where t.id = #{id}
+    </select>
+
+    <!--用户余额表增加余额-->
+    <update id="updateUserIncomeForOrder">
+        update tb_user_income t,
+                (select balance from tb_user_income where user_id = #{userId}) temp,
+                (select transfer_money money from tb_user_transfer_accn where id = #{id}) t1
+        set t.balance = (temp.balance + t1.money)
+        where t.user_id = #{userId}
+    </update>
+
+    <!--拒绝提款，释放用户冻结的金额-->
+    <update id="updateUserIncomeForReject">
+        update tb_user_income t, (select freeze_money money from tb_user_income where user_id = #{userId}) temp
+        set t.freeze_money = (ifnull(temp.money, 0) - #{transferMoney})
+        where t.user_id = #{userId}
+    </update>
+
+    <!--云顶后台; 根据用户id，查询用户充值/提款数据-->
+    <select id="queryTransferDataByUserId" resultType="userTransferAccountOrder">
+        select dic.dic_desc transferType,
+                <include refid="sqlField"/>
+        from tb_user_transfer_accn t
+        left join tb_data_dictionary dic on dic.dic_val = t.transfer_type and dic.dic_key = 'transferAccountType'
+        where t.user_id = #{userId}
+        order by t.create_time desc
+    </select>
+
+    <!--根据审核状态查询数据(最近三天数据)-->
+    <select id="queryDataByCheckStatus" resultType="userTransferAccountOrder">
+        select t.id,
+                t.user_id userId,
+                t.order_type orderType,
+                t.transfer_money transferMoney,
+                t.create_time createTime,
+                t.check_time checkTime,
+                t.exception_msg exceptionMsg,
+                t.remark,
+                t1.accountNo accountNo
+        from tb_user_transfer_accn t
+        join tb_user_info t1 on t1.id = t.user_id
+        where t.check_status = #{status}
+        and t.transfer_date &gt; date_format(date_sub(now(),interval 3 day), '%Y%m%d')
+        order by t.create_time desc
+    </select>
+</mapper>

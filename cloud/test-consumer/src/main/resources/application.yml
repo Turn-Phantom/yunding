@@ -1,0 +1,58 @@
+server:
+  port: 8055
+  servlet:
+    context-path: /cloud/consumer
+
+logging:
+  level:
+#    root: debug
+    com.li.cloud.tool: debug # 配置不生效
+spring:
+  application:
+    name: consumer-service # 当前微服务名称
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true # 是否开启服务端请求重试机制
+eureka:
+  client:
+    enabled: true # 是否启动 eureka
+    service-url: # 指定服务注册中心地址
+      defaultZone: http://192.168.48.250:8051/cloud/registry/center/eureka/,http://192.168.48.147:8052/cloud/registry/center/eureka/,http://192.168.48.239:8053/cloud/registry/center/eureka/
+    healthcheck: # 是否开启 eureka 客户端的健康检查
+      enabled: true
+  instance:
+    ip-address: true # 使用ip访问；也可通过定义主机名称，默认false
+    lease-renewal-interval-in-seconds: 20 # 服务续约任务调度的时间间隔；单位：秒； 默认30秒
+    lease-expiration-duration-in-seconds: 90 # 服务失效时间，默认90秒
+    # 当配置了项目路径前缀，需要对应的eureka实例指定端点前缀
+    status-page-url-path: ${server.servlet.context-path}/info
+    health-check-url-path: ${server.servlet.context-path}/health
+#    health-check-url: https://127.0.0.1:8051/${server.servlet.context-path}/health
+
+# 指定请求 server-tool 实例重试配置
+server-tool:
+  ribbon:
+    ConnectTimeout: 500
+    ReadTimeout: 2000
+    OkToRetryOnAllOperations: true # 所有请求都重试操作
+    MaxAutoRetriesNextServer: 2 # 切换实例重试次数
+    MaxAutoRetries: 1 # 当前实例重试次数
+
+# 断熔 hystrix 配置
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 100000
+feign:
+  hystrix:
+    enabled: false # 开启Fegin客户端的eureka支持
+  compression:
+    request:
+      enabled: true # 开启请求压缩功能
+    response:
+      enabled: true  # 开启响应压缩功能
+

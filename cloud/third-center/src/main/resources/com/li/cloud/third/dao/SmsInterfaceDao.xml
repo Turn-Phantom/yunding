@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.cloud.third.dao.SmsInterfaceDao">
+
+    <!--保存短信发送记录-->
+    <insert id="saveSendRecord" parameterType="smsSendRecord">
+        insert into tb_sms_send_record (user_id, send_type, send_time, phone, send_res)
+        values (#{userId, jdbcType=INTEGER}, #{sendType}, #{sendTime}, #{phone}, #{sendRes})
+    </insert>
+
+    <!--查询管理员临时信息表-->
+    <select id="queryManagerContact" resultType="Map">
+        select phone, msg from tb_manager_contact
+    </select>
+</mapper>

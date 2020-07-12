@@ -1,0 +1,10 @@
+server:
+  port: 8051
+
+eureka:
+  instance:
+    hostname: registry1 # 当前服务的主机名称; 通过hosts文件配置指定地址
+#    ip-address: true  # 当注册中心不想使用主机名称来作为服务地址时，可使用ip来配置，需要将该项设置为true，默认为false
+  client:
+    service-url: # 指向注册中心的服务地址
+      defaultZone: http://registry2:8052/cloud/registry/center/eureka/

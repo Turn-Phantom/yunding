@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.cloud.tool.dao.CustomerManageDao">
+
+    <sql id="sqlField">
+        t.id,
+        t.name,
+        t.phone,
+        t.area_num areaNum,
+        t.email email,
+        t.status,
+        t.call_res callRes,
+        t.is_pay isPay,
+        t.manager,
+        t.number_type numberType,
+        t.create_date createDate,
+        t.remark,
+        modify_time modifyTime,
+        vip_id vipId,
+        vip_type vipType,
+        passport_id passportId,
+        honorific_title honorificTitle,
+        birthday,
+        nationality,
+        province,
+        country
+    </sql>
+
+    <!-- 分页查询数据 -->
+    <select id="queryPageList" resultType="customerManage">
+        select <include refid="sqlField"/>
+        from tb_customer_manage t
+        <where>
+            <if test="params.name != null and params.name != ''">
+                and t.name like concat('%', #{params.name}, '%')
+            </if>
+            <if test="params.phone != null and params.phone != ''">
+                and t.phone like concat('%', #{params.phone}, '%')
+            </if>
+            <if test="params.startDate != null and params.startDate != ''">
+                and t.create_date &gt;= #{params.startDate}
+            </if>
+            <if test="params.endDate != null and params.endDate != ''">
+                and t.create_date &lt;= #{params.endDate}
+            </if>
+            <if test="params.numberType != null and params.numberType != ''">
+                and t.number_type in
+                <foreach collection="params.numberType.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="params.numberStatus != null and params.numberStatus != ''">
+                and t.status in
+                <foreach collection="params.numberStatus.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="params.manager != null and params.manager != ''">
+                and t.manager in
+                <foreach collection="params.manager.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="params.callRes != null and params.callRes != ''">
+                and t.call_res in
+                <foreach collection="params.callRes.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="params.isPay != null and params.isPay == 'isPay'">
+                and t.is_pay = 1
+            </if>
+        </where>
+        order by t.id, t.phone
+    </select>
+
+    <!--查询重复分页数据-->
+    <select id="queryPageListForDup" resultType="customerManage">
+        select *
+        from (
+            select
+                t.id,
+                t.name,
+                t.phone,
+                if(left(t.phone, 3) = '+86', substring(t.phone, 4), t.phone) as phonePlu,
+                t.area_num areaNum,
+                t.email email,
+                t.status,
+                t.call_res callRes,
+                t.is_pay isPay,
+                t.manager,
+                t.number_type numberType,
+                t.create_date createDate,
+                t.remark,
+                t.modify_time modifyTime,
+                t.vip_id vipId,
+                t.vip_type vipType,
+                t.passport_id passportId,
+                t.honorific_title honorificTitle,
+                t.birthday,
+                t.nationality,
+                t.province,
+                t.country
+            from tb_customer_manage t
+            where t.id in (
+                select t1.id
+                from (
+                    select * from (
+                        select IF (LEFT (temp.phone, 3) = '+86', substring(temp.phone, 4), temp.phone) phone, id
+                        from tb_customer_manage temp
+                        <where>
+                            <if test="params.name != null and params.name != ''">
+                                and temp.name like concat('%', #{params.name}, '%')
+                            </if>
+                            <if test="params.phone != null and params.phone != ''">
+                                and temp.phone like concat('%', #{params.phone}, '%')
+                            </if>
+                            <if test="params.startDate != null and params.startDate != ''">
+                                and temp.create_date &gt;= #{params.startDate}
+                            </if>
+                            <if test="params.endDate != null and params.endDate != ''">
+                                and temp.create_date &lt;= #{params.endDate}
+                            </if>
+                            <if test="params.numberType != null and params.numberType != ''">
+                                and temp.number_type in
+                                <foreach collection="params.numberType.split(',')" item="item" open="(" separator="," close=")">
+                                    #{item}
+                                </foreach>
+                            </if>
+                            <if test="params.numberStatus != null and params.numberStatus != ''">
+                                and temp.status in
+                                <foreach collection="params.numberStatus.split(',')" item="item" open="(" separator="," close=")">
+                                    #{item}
+                                </foreach>
+                            </if>
+                            <if test="params.manager != null and params.manager != ''">
+                                and temp.manager in
+                                <foreach collection="params.manager.split(',')" item="item" open="(" separator="," close=")">
+                                    #{item}
+                                </foreach>
+                            </if>
+                        </where>
+                    ) temp_tb
+                    where temp_tb.phone in (
+                        SELECT t1.phone
+                        FROM (
+                            SELECT IF (LEFT (phone, 3) = '+86', substring(phone, 4), phone) AS phone FROM tb_customer_manage
+                            <where>
+                                <if test="params.name != null and params.name != ''">
+                                    and name like concat('%', #{params.name}, '%')
+                                </if>
+                                <if test="params.phone != null and params.phone != ''">
+                                    and phone like concat('%', #{params.phone}, '%')
+                                </if>
+                                <if test="params.startDate != null and params.startDate != ''">
+                                    and create_date &gt;= #{params.startDate}
+                                </if>
+                                <if test="params.endDate != null and params.endDate != ''">
+                                    and create_date &lt;= #{params.endDate}
+                                </if>
+                                <if test="params.numberType != null and params.numberType != ''">
+                                    and number_type in
+                                    <foreach collection="params.numberType.split(',')" item="item" open="(" separator="," close=")">
+                                        #{item}
+                                    </foreach>
+                                </if>
+                                <if test="params.numberStatus != null and params.numberStatus != ''">
+                                    and status in
+                                    <foreach collection="params.numberStatus.split(',')" item="item" open="(" separator="," close=")">
+                                        #{item}
+                                    </foreach>
+                                </if>
+                                <if test="params.manager != null and params.manager != ''">
+                                    and manager in
+                                    <foreach collection="params.manager.split(',')" item="item" open="(" separator="," close=")">
+                                        #{item}
+                                    </foreach>
+                                </if>
+                            </where>
+                        ) t1
+                        GROUP BY t1.phone HAVING count(t1.phone) > 1
+                    )
+                ) t1
+            )
+        ) tb_dup
+        order by tb_dup.phonePlu
+    </select>
+
+    <!--导入手机号码-->
+    <insert id="importPhoneNum" parameterType="list">
+        insert into tb_customer_manage(
+        name,
+        phone,
+        email,
+        status,
+        manager,
+        number_type,
+        create_date,
+        remark,
+        modify_time,
+        vip_id,
+        vip_type,
+        passport_id,
+        honorific_title,
+        birthday,
+        nationality,
+        province,
+        country
+        ) values
+        <foreach collection="insertList" item="item" separator=",">
+            (
+            #{item.name, jdbcType=VARCHAR},
+            #{item.phone, jdbcType=VARCHAR},
+            #{item.email, jdbcType=INTEGER},
+            #{item.status, jdbcType=INTEGER},
+            #{item.manager, jdbcType=INTEGER},
+            #{item.numberType, jdbcType=INTEGER},
+            #{item.createDate, jdbcType=INTEGER},
+            #{item.remark, jdbcType=VARCHAR},
+            #{item.modifyTime, jdbcType=VARCHAR},
+            #{item.vipId, jdbcType=VARCHAR},
+            #{item.vipType, jdbcType=VARCHAR},
+            #{item.passportId, jdbcType=VARCHAR},
+            #{item.honorificTitle, jdbcType=VARCHAR},
+            #{item.birthday, jdbcType=VARCHAR},
+            #{item.nationality, jdbcType=VARCHAR},
+            #{item.province, jdbcType=VARCHAR},
+            #{item.country, jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 导出数据 -->
+    <select id="exportCustomerData" resultType="customerExportData">
+        select t.name,
+                t.phone,
+                t.email,
+                case when t.honorific_title = 'MR' then '先生'
+                      when t.honorific_title = 'MS' then '小姐'
+                      when t.honorific_title = 'MDM' then '女士'
+                else '' end honorificTitle,
+                t.vip_id vipId,
+                ifnull(dic1.dic_val, t.vip_type) vipType,
+                t.passport_id passportId,
+                t.birthday,
+                ifnull(dic3.dic_val, t.nationality) nationality,
+                ifnull(dic2.dic_val, t.province) province,
+                ifnull(dic3.dic_val, t.country) country
+        from tb_customer_manage t
+        left join tb_data_dictionary dic1 on dic1.dic_key = t.vip_type and dic1.dic_type = 'yd_vip_type'
+        left join tb_data_dictionary dic2 on dic2.dic_key = t.province and dic2.dic_type = 'yd_province_data'
+        left join tb_data_dictionary dic3 on dic3.dic_key = t.country and dic3.dic_type = 'yd_nationality_data'
+        <where>
+            <if test="name != null and name != ''">
+                and t.name like concat('%', #{name}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                and t.phone like concat('%', #{phone}, '%')
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and t.create_date &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                and t.create_date &lt;= #{endDate}
+            </if>
+            <if test="numberType != null and numberType != ''">
+                and t.number_type in
+                <foreach collection="numberType.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="numberStatus != null and numberStatus != ''">
+                and t.status in
+                <foreach collection="numberStatus.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="manager != null and manager != ''">
+                and t.manager in
+                <foreach collection="manager.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="callRes != null and callRes != ''">
+                and t.call_res in
+                <foreach collection="callRes.split(',')" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="isPay != null and isPay == 'isPay'">
+                and t.is_pay = 1
+            </if>
+        </where>
+        order by t.id, t.phone
+    </select>
+
+    <!--查询未检测的手机号码-->
+    <select id="queryEmptyNumber" resultType="String">
+        select distinct phone from tb_customer_manage where status = -1;
+    </select>
+
+    <!--根据手机号码更新状态-->
+    <update id="updateByNumber">
+        update tb_customer_manage set status = #{status}, remark=#{remark} where phone = #{phoneNumber}
+    </update>
+</mapper>

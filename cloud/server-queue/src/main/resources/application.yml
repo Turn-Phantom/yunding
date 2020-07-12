@@ -1,0 +1,54 @@
+server:
+  port: 8884
+
+logging:
+  level:
+#    root: debug
+    com.li.cloud.common.basecurd.dao : debug
+    com.li.cloud.queue.dao: debug
+
+spring:
+  application: # 视频服务中心的服务名称
+    name: server-queue
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/yunding?serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
+    username: root
+    password:
+# redis 服务配置；不可忽略，服务启动会检查该项
+  redis:
+    host: 10.101.66.107
+    port: 6379
+
+schedule:
+  queue: # 队列数据缓存到redis频率
+    cron: 0/3 * * * * ? # 每三秒执行一次
+  syncDb: # 同步redis的数据到数据库
+    cron: 0 0/5 * * * ? # 每5分钟执行一次
+  updateHisData: # 更新访问历史记录表
+    cron: 0 0 0/12 * * ?  # 每12小时执行一次
+  clearHisData: # 每天清除超过90天的历史记录
+    cron: 0 0 5 1/1 * ?  # 每天执行一次，从凌晨五点执行
+  updateVideoPlayCount: # 统计影片播放次数
+    cron: 0/5 * * * * ?  # 每5秒扫描一次
+  videoPlayTimeCount: # 统计影片播放时长
+    cron: 0/3 * * * * ?  # 每5秒扫描一次
+  clearUpdateRecord: # 清除用户修改记录
+    cron: 0,20 0 0 * * ?   # 每天凌晨0点，开始执行，0点执行一次，0点20秒执行一次
+  updateSmsSurplus:
+    cron: 0 0 0/2 * * ? # 每隔两个小时查询一次短信剩余量
+
+
+# mybatis 相关设置
+mybatis:
+  type-aliases-package: com.li.cloud.queue.entity
+  mapper-locations: classpath*:com.li.cloud.queue.dao.*/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+# 服务治理配置
+eureka:
+  client:
+    enabled: true
+    service-url: # 指定服务注册中心地址
+      defaultZone: http://registry1:8051/cloud/registry/center/eureka/,http://registry2:8052/cloud/registry/center/eureka/

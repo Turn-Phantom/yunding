@@ -1,0 +1,24 @@
+server:
+  servlet:
+      context-path: /registry # 项目根路径
+
+spring:
+  application:
+    name: registry-center # 应用名称
+
+logging:
+  level:
+    root: info # 日志级别
+
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*" # actuator 启用所有端点
+
+eureka:
+  server:
+    enable-self-preservation: true # 自我保护机制，及时剔除不可用服务，生产环境需要开启
+# 引用配置内的配置； 例如：${server.port}
+# 使用随机数； 例如：随机字符串：${random.value}; 随机整数：${random.int}; ${random.long}; ${random.int[10,20]}
+

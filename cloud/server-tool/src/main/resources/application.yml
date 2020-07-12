@@ -1,0 +1,40 @@
+server:
+  port: 8050
+  servlet:
+    context-path: /cloud/server/tool
+
+logging:
+  level:
+#    root: debug
+    com.li.cloud.common.basecurd.dao : debug
+    com.li.cloud.tool.dao: debug
+
+spring:
+  application:
+    name: server-tool # 当前微服务名称
+  servlet:
+    multipart: # 上次文件大小配置
+      max-file-size: 10MB
+      max-request-size: 100MB
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/ydtool?serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
+    username: root
+    password:
+#  cloud:
+#    loadbalancer:
+#      retry:
+#        enabled: true # 开启请求的重试机制；默认 false
+eureka:
+  client:
+    enabled: false
+    service-url: # 指定服务注册中心地址
+      defaultZone: http://192.168.48.250:8051/cloud/registry/center/eureka/,http://192.168.48.147:8052/cloud/registry/center/eureka/,http://192.168.48.239:8053/cloud/registry/center/eureka/
+#  instance:
+#    ip-address: true # 默认false
+
+mybatis:
+  type-aliases-package: com.li.cloud.tool.entity
+  mapper-locations: classpath*:com.li.cloud.tool.dao.*/*.xml
+  configuration:
+    map-underscore-to-camel-case: true

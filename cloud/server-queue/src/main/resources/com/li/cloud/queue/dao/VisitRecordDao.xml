@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.cloud.queue.dao.VisitRecordDao">
+
+    <!--sql字段-->
+    <sql id="sqlField">
+        t.visitor,
+        t.visit_id visitId,
+        t.visit_ip visitIp,
+        t.proxy_ip proxyId,
+        t.visit_count visitCount,
+        t.fictitious_count fictitiousCount,
+        t.visit_mac visitMac,
+        t.browser_ver browserVer,
+        t.sys_ver sysVer,
+        t.ip_address ipAddress,
+        t.visit_source visitSource,
+        t.visit_date visitDate,
+        t.visit_time visitTime,
+        t.update_time updateTime,
+        t.update_count updateCount
+    </sql>
+
+    <!--根据字段查询数据-->
+    <select id="queryByField" resultType="visitRecord">
+      select <include refid="sqlField" />
+      from tb_visit_dayrecord t
+      where t.visitor = #{visitor}
+      and t.visit_date = DATE_FORMAT(NOW(),'%Y%m%d')
+      <if test="visitId != null">
+          and t.visit_id = #{visitId}
+      </if>
+      <if test="visitIp != null and visitIp != ''">
+          and t.visit_ip = #{visitIp}
+      </if>
+    </select>
+
+    <!--根据字段删除数据-->
+    <delete id="deleteByField">
+        delete from tb_visit_dayrecord t
+        where t.visitor = #{visitor}
+        and t.visit_date = DATE_FORMAT(NOW(),'%Y%m%d')
+        <if test="visitId != null">
+            and t.visit_id = #{visitId}
+        </if>
+        <if test="visitIp != null and visitIp != ''">
+            and t.visit_ip = #{visitIp}
+        </if>
+    </delete>
+
+    <!--插入/更新数据-->
+    <update id="updateVisitRecord" parameterType="visitRecord">
+        update tb_visit_dayrecord t
+        set t.visit_count = #{visitCount}, t.fictitious_count = #{fictitiousCount}, t.update_time = #{updateTime}, t.update_count = #{updateCount}
+        where t.visitor = #{visitor}
+        and t.visit_date = DATE_FORMAT(NOW(),'%Y%m%d')
+        <if test="visitId != null">
+            and t.visit_id = #{visitId}
+        </if>
+        <if test="visitIp != null and visitIp != ''">
+            and t.visit_ip = #{visitIp}
+        </if>
+    </update>
+
+    <!--将前一天的访问记录插入到历史表-->
+    <insert id="insertRecordHisByLastDay">
+        insert into tb_visit_dayrecord_his
+            select * from tb_visit_dayrecord
+            where visit_date = date_format(date_sub(now(),interval 1 day),'%Y%m%d');
+    </insert>
+
+    <!--删除前一天的访问记录数据-->
+    <delete id="delByLastDay">
+        delete from tb_visit_dayrecord where visit_date = date_format(date_sub(now(),interval 1 day),'%Y%m%d');
+    </delete>
+
+    <!--查询前一天的历史记录-->
+    <select id="queryLastDayData" resultType="visitRecord">
+        select <include refid="sqlField" />
+        from tb_visit_dayrecord t
+        where t.visit_date = date_format(date_sub(now(),interval 1 day),'%Y%m%d');
+    </select>
+
+    <!--删除登录记录超过15天的数据（&lg; 小于， &gt; 大于）-->
+    <delete id="clearLoginHis">
+        delete from tb_user_login_his where login_date &lt; date_format(date_sub(now(),interval 90 day),'%Y%m%d');
+    </delete>
+
+    <!--保存网站访问总量-->
+    <update id="saveVisitTotals">
+        update tb_visit_visitor_total t,
+        (select visit_count from tb_visit_visitor_total where visit_type = #{visitType}) temp
+        set t.visit_count = (temp.visit_count + #{visitCount, jdbcType=INTEGER}) where t.visit_type = #{visitType};
+    </update>
+</mapper>

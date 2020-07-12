@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.cloud.tool.dao.CommonDataDao">
+
+    <!-- 根据key查询数据字典下拉数据 -->
+    <select id="querySelByDicType" resultType="dataDictionary">
+        select dic_type dicType,
+                dic_key dicKey,
+                dic_code dicCode,
+                dic_val dicVal,
+                dic_desc dicDesc,
+                data_sort data_sort,
+                sort_id sortId
+        from  tb_data_dictionary
+        where dic_type = #{dicType}
+
+    </select>
+</mapper>

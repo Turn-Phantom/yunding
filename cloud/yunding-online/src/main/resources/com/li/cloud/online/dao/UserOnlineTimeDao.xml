@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.cloud.online.dao.UserOnlineTimeDao">
+
+    <sql id="sqlField">
+        t.user_id userId,
+        t.online_sec onlineSec,
+        t.child_online childOnline,
+        t.online_date onlineDate,
+        t.start_time startTime,
+        t.end_time endTime
+    </sql>
+
+    <!-- 根据用户id，查询用户在线时长数据 -->
+    <select id="queryOnlineTimeByUserId" resultType="userOnlineTime">
+        select <include refid="sqlField"/>
+        from tb_user_online  t
+        where t.user_id = #{userId}
+        union
+        select <include refid="sqlField"/>
+        from tb_user_online_his  t
+        where t.user_id = #{userId}
+        order by onlineDate desc
+    </select>
+</mapper>

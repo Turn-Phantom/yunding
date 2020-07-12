@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.cloud.online.dao.ManageUserDao">
+
+    <!--查询用户相关信息: 总用户数量；历史浏览量，今日注册数，今日登陆数，今日总浏览量-->
+    <select id="queryUserRelateInfo" resultType="map">
+        select (select count(0) userTotal from tb_user_info) userTotal,
+                ifnull((select sum(visit_count) viewTotal from tb_visit_visitor_total), 0) viewTotalHis,
+                (select count(0) todayRegister from tb_user_info where createTime >= (unix_timestamp(current_date) * 1000)) todayRegister,
+                (select count(0) from (select distinct user_id from tb_user_login_his where login_date = date_format(now(),'%Y%m%d')) t) todayLogin,
+                ifnull((select sum(visit_count) todayView from tb_visit_dayrecord where visit_date = date_format(now(), '%Y%m%d')), 0) todayView
+        from dual;
+    </select>
+</mapper>

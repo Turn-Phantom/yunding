@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.li.cloud.queue.dao.VideoServerDao">
+
+    <!--更新影片播放次数-->
+    <update id="updateVideoPlayCount" >
+        update tb_video_play_log set click_play = #{count} where video_id = #{videoId}
+    </update>
+
+    <!--查询所有影片播放记录-->
+    <select id="queryAllPlayCount" resultType="VideoPlayCount">
+        select id, video_id, click_play from tb_video_play_log
+    </select>
+
+    <!--查询当天用户在线记录-->
+    <select id="queryCurrOnlineUser" resultType="userOnlineTime" parameterType="Integer">
+        select  user_id userId,
+                 online_sec onlineSec,
+                 child_online childOnline
+        from tb_user_online
+        where user_id = #{userId} and online_date = DATE_FORMAT(NOW(),'%Y%m%d')
+    </select>
+
+    <!--更新用户播放时长-->
+    <update id="updateVideoPlayTime">
+        update tb_user_online set online_sec = #{count}, end_time = REPLACE(unix_timestamp(current_timestamp(3)),'.','') where user_id = #{userId}
+    </update>
+
+    <!--清除播记录超过15天的数据-->
+    <delete id="clearPlayTimeHis">
+        delete from tb_user_online_his where online_date &lt; date_format(date_sub(now(),interval 90 day),'%Y%m%d');
+    </delete>
+
+    <!--将前一天的数据，从播放时长记录表更新到历史播放时长记录表中-->
+    <insert id="insertPlayHis">
+        insert into tb_user_online_his
+        select * from tb_user_online
+        where online_date = date_format(date_sub(now(),interval 1 day),'%Y%m%d');
+    </insert>
+
+    <!--删除前一天用户播放记录的数据-->
+    <delete id="delPlayByLast">
+        delete from tb_user_online where online_date = date_format(date_sub(now(),interval 1 day),'%Y%m%d');
+    </delete>
+
+    <!--查询前一天的用户播放记录-->
+    <select id="queryPlayTimeByLastDay" resultType="userOnlineTime">
+        select user_id userId,
+                online_sec onlineSec,
+                child_online childOnline
+        from tb_user_online
+        where online_date = date_format(date_sub(now(),interval 1 day),'%Y%m%d');
+    </select>
+</mapper>
