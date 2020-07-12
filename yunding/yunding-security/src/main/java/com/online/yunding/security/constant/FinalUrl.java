@@ -51,5 +51,6 @@ public interface FinalUrl {
     // 放行验证重置密码验证码请求
     String RESET_PASSWORD_URL_SMSCODE = "/rest/user/resetPasswordCodeIsCorrect";
     String RESET_PASSWORD_URL_PASSWORD = "/rest/user/resetPasswordForPhone";
-
+    // 获取客服qq
+    String QUERY_SERVICE_QQ = "/rest/contact/queryServiceQQ";
 }

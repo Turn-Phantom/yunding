@@ -23,7 +23,7 @@
 
     <!--更新用户余额-->
     <update id="updateUserIncomeForBalance">
-        update tb_user_income t, (select ifnull(balance, 0) balance from tb_user_income where user_id = #{userId}) temp
+        update tb_user_income t, (select ifnull(balance, 0) balance  from tb_user_income where user_id = #{userId}) temp
         set t.balance = (temp.balance + #{balance})
         where t.user_id = #{userId}
     </update>

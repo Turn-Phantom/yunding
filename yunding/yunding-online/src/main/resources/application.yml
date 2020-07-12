@@ -24,11 +24,10 @@ spring:
 
 # redis 服务配置；不可忽略，服务启动会检查该项
   redis:
-    host: 127.0.0.1
+    host: 192.168.48.206
     port: 6379
 #  session:
 #    store-type: redis
-
 
 # 云顶在线，自定义配置
 yunding:

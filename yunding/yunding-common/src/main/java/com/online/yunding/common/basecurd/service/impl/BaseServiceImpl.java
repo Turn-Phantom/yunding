@@ -17,7 +17,7 @@ import java.lang.reflect.Type;
  * @date: 2019-06-14
  */
 @Service
-//@Transactional
+@Transactional
 public class BaseServiceImpl implements BaseService {
 
     @Autowired

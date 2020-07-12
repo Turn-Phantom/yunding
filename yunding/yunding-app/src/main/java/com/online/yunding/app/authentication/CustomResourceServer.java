@@ -74,7 +74,8 @@ public class CustomResourceServer extends ResourceServerConfigurerAdapter {
                         FinalUrl.WEB_SOCKET_LINK, // web socket 连接
                         FinalUrl.ADVERT_LINK_DATA, // 获取广告链接数据
                         FinalUrl.RESET_PASSWORD_URL_SMSCODE, // 放行验证重置密码验证码请求
-                        FinalUrl.RESET_PASSWORD_URL_PASSWORD // 放行重置密码请求
+                        FinalUrl.RESET_PASSWORD_URL_PASSWORD, // 放行重置密码请求
+                        FinalUrl.QUERY_SERVICE_QQ // 获取客服qq
                 )
                 .permitAll() // 放行上面的url
                 .anyRequest() // 任何请求
