@@ -73,4 +73,11 @@ public class CustomerExportData {
     @ExcelProperty(value = "国家")
     private String country;
 
+    @ColumnWidth(10)
+    @ExcelProperty(value = "状态")
+    private String callRes;
+
+    @ColumnWidth(10)
+    @ExcelProperty(value = "电销员")
+    private String manager;
 }

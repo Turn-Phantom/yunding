@@ -246,11 +246,15 @@
                 t.birthday,
                 ifnull(dic3.dic_val, t.nationality) nationality,
                 ifnull(dic2.dic_val, t.province) province,
-                ifnull(dic3.dic_val, t.country) country
+                ifnull(dic3.dic_val, t.country) country,
+                ifnull(dic4.dic_val, t.call_res) callRes,
+                ifnull(dic5.dic_val, t.manager) manager
         from tb_customer_manage t
         left join tb_data_dictionary dic1 on dic1.dic_key = t.vip_type and dic1.dic_type = 'yd_vip_type'
         left join tb_data_dictionary dic2 on dic2.dic_key = t.province and dic2.dic_type = 'yd_province_data'
         left join tb_data_dictionary dic3 on dic3.dic_key = t.country and dic3.dic_type = 'yd_nationality_data'
+        left join tb_data_dictionary dic4 on dic4.dic_key = t.call_res and dic4.dic_type='phone_call_res'
+        left join tb_data_dictionary dic5 on dic5.dic_key = t.manager and dic5.dic_type='number_call_people'
         <where>
             <if test="name != null and name != ''">
                 and t.name like concat('%', #{name}, '%')
