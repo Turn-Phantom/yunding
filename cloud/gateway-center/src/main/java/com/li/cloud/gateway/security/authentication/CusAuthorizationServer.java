@@ -88,7 +88,6 @@ public class CusAuthorizationServer extends AuthorizationServerConfigurerAdapter
         }
 
         for (OAth2ClientProp config : securityConfigProp.getOauth2().getClients()) {
-            System.out.println("秘钥：" + passwordEncoder.encode(config.getClientSecret()) + "；明文：" + config.getClientSecret());
             inMemoryBuild
                     .withClient(config.getClientId()) // clientId
                     .secret(passwordEncoder.encode(config.getClientSecret())) // springboot2.x版本的坑，此处需要使用passwordEncoder进行加密

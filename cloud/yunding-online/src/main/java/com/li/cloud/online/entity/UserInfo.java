@@ -128,11 +128,11 @@ public class UserInfo extends CloneSupport<UserInfo> {
     // 在线时长
     private Long onlineTime;
     // 手机号码修改次数
-    private int phoneCount;
+    private Integer phoneCount;
     // 密码修改次数
-    private int pwdCount;
+    private Integer pwdCount;
     // 取款密码修改次数
-    private int payPwdCount;
+    private Integer payPwdCount;
     // 旧密码
     private String oldPwd;
     // 确认密码
