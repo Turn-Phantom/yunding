@@ -51,4 +51,4 @@ eureka:
   client:
     enabled: true
     service-url: # 注册中心地址
-      defaultZone: http://registry1:8051/cloud/registry/center/eureka/,http://registry2:8052/cloud/registry/center/eureka/
+      defaultZone: http://registry1:8051/registry/eureka/,http://registry2:8052/registry/eureka/
