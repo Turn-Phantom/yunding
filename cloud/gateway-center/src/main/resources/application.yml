@@ -14,7 +14,7 @@ spring:
     name: gateway-center
   datasource: # Mysql数据库连接
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/yunding?serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
+    url: jdbc:mysql://10.101.66.160:3306/yunding?serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
     username: root
     password:
   redis: # Redis 连接
@@ -26,7 +26,7 @@ eureka:
   client:
     enabled: true
     service-url: # 注册中心地址
-      defaultZone: http://registry1:8051/cloud/registry/center/eureka/,http://registry2:8052/cloud/registry/center/eureka/
+      defaultZone: http://registry1:8051/registry/eureka/,http://registry2:8052/registry/eureka/
 
 # 断熔配置
 hystrix:
