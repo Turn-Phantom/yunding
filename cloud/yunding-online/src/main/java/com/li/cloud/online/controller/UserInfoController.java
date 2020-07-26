@@ -6,6 +6,7 @@ import com.li.cloud.common.basecurd.service.BaseService;
 import com.li.cloud.common.utils.NumberUtils;
 import com.li.cloud.common.utils.PasswordUtil;
 import com.li.cloud.common.utils.RegularUtils;
+import com.li.cloud.online.entity.LoginHistory;
 import com.li.cloud.online.entity.UserInfo;
 import com.li.cloud.online.entity.YdVipInfo;
 import com.li.cloud.online.service.UserInfoService;
@@ -267,11 +268,13 @@ public class UserInfoController {
 
     /** 获取最近15天的登录记录 */
     @GetMapping("/getLoginHistory")
-    public ReturnData getLoginHistory(Integer userId){
-        if(null == userId){
+    public ReturnData getLoginHistory(Pagination<LoginHistory> pagination){
+
+        if(StringUtils.isBlank((CharSequence) pagination.getParams().get("userId"))) {
             return ReturnData.error("查询登录历史记录失败：参数不能为空");
         }
-        return ReturnData.successData(userInfoService.getLoginHistory(userId));
+        userInfoService.getLoginHistory(pagination);
+        return ReturnData.successData(pagination);
     }
 
     /**

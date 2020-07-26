@@ -26,7 +26,7 @@ public interface UserInfoService {
     List<UserInfo> queryUserList(Pagination<UserInfo> pagination);
 
     /** 获取最近15天的登录记录 */
-    List<LoginHistory> getLoginHistory(Integer userId);
+    List<LoginHistory> getLoginHistory(Pagination<LoginHistory> pagination);
 
     /**
      * @desc 修改用户信息

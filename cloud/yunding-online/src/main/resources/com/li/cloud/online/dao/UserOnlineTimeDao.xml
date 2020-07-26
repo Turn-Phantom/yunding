@@ -16,11 +16,11 @@
     <select id="queryOnlineTimeByUserId" resultType="userOnlineTime">
         select <include refid="sqlField"/>
         from tb_user_online  t
-        where t.user_id = #{userId}
+        where t.user_id = #{params.userId}
         union
         select <include refid="sqlField"/>
         from tb_user_online_his  t
-        where t.user_id = #{userId}
+        where t.user_id = #{params.userId}
         order by onlineDate desc
     </select>
 </mapper>

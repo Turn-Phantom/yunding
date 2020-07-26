@@ -1,5 +1,6 @@
 package com.li.cloud.online.service;
 
+import com.li.cloud.common.basecurd.entity.Pagination;
 import com.li.cloud.online.entity.UserOnlineTime;
 
 import java.util.List;
@@ -11,5 +12,5 @@ import java.util.List;
 public interface UserOnlineTimeService {
 
     /** 根据用户id，查询用户在线时长 */
-    List<UserOnlineTime> queryOnlineTimeByUserId(Integer userId);
+    List<UserOnlineTime> queryOnlineTimeByUserId(Pagination<UserOnlineTime> pagination);
 }

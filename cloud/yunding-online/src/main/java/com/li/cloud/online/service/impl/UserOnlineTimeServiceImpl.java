@@ -1,5 +1,7 @@
 package com.li.cloud.online.service.impl;
 
+import com.li.cloud.common.annotations.CustomPage;
+import com.li.cloud.common.basecurd.entity.Pagination;
 import com.li.cloud.online.dao.UserOnlineTimeDao;
 import com.li.cloud.online.entity.UserOnlineTime;
 import com.li.cloud.online.service.UserOnlineTimeService;
@@ -20,7 +22,8 @@ public class UserOnlineTimeServiceImpl implements UserOnlineTimeService {
 
     /** 根据用户id，查询用户收益数据 */
     @Override
-    public List<UserOnlineTime> queryOnlineTimeByUserId(Integer userId) {
-        return userOnlineTimeDao.queryOnlineTimeByUserId(userId);
+    @CustomPage
+    public List<UserOnlineTime> queryOnlineTimeByUserId(Pagination<UserOnlineTime> pagination) {
+        return userOnlineTimeDao.queryOnlineTimeByUserId(pagination);
     }
 }

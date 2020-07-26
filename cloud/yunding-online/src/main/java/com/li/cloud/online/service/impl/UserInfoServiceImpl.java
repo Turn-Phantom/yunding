@@ -278,8 +278,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     /** 获取最近15天的登录记录 */
     @Override
-    public List<LoginHistory> getLoginHistory(Integer userId) {
-        return userInfoDao.getLoginHistory(userId);
+    @CustomPage
+    public List<LoginHistory> getLoginHistory(Pagination<LoginHistory> pagination) {
+        return userInfoDao.getLoginHistory(pagination);
     }
 
     /** 修改用户信息 */
