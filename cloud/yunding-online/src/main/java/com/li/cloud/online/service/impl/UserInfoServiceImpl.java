@@ -561,4 +561,16 @@ public class UserInfoServiceImpl implements UserInfoService {
         // 余额 + 在线收益 + 推荐收益 - 冻结金额
         return userInfo.getBalance().add(userInfo.getOnlineMoney()).add(userInfo.getRecommendMoney()).subtract(userInfo.getFreezeMoney());
     }
+
+    /** 换绑用户手机号码*/
+    @Override
+    public String handsetChange(UserInfo userInfo) {
+        UserInfo userInfo1 = baseService.queryDataByField(userInfo,"phoneNo");
+        if (null == userInfo1){
+            baseService.updateField(userInfo);
+            return ReturnData.SUCCESS;
+        }else{
+            return "该手机号已被绑定";
+        }
+    }
 }

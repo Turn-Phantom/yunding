@@ -50,4 +50,7 @@ public interface UserInfoService {
 
     /** 根据用户id，查询用户收益 */
     BigDecimal queryUserIncomeBalance(Integer userId);
+
+    /** 换绑用户手机号码*/
+    String handsetChange(UserInfo userInfo);
 }

@@ -350,5 +350,17 @@ public class UserInfoController {
         BigDecimal money = userInfoService.queryUserIncomeBalance(userId);
         return ReturnData.successData(money);
     }
+
+    /** 换绑用户手机号码*/
+    @PostMapping("/handsetChange")
+    public ReturnData handsetChange(UserInfo userInfo){
+        if (null == userInfo.getPhoneNo()) {
+            return ReturnData.error("手机号码不能为空");
+        }
+        if (null == userInfo.getId()){
+            return ReturnData.error("用户id不能为空");
+        }
+        return ReturnData.success(userInfoService.handsetChange(userInfo));
+    }
 }
 
