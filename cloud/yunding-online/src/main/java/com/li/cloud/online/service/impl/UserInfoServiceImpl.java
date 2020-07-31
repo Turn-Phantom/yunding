@@ -7,10 +7,12 @@ import com.li.cloud.common.basecurd.service.BaseService;
 import com.li.cloud.common.utils.HttpClientUtils;
 import com.li.cloud.common.utils.NumberUtils;
 import com.li.cloud.common.utils.PasswordUtil;
+import com.li.cloud.online.config.params.ServiceIdConfig;
 import com.li.cloud.online.dao.UserInfoDao;
 import com.li.cloud.online.entity.*;
 import com.li.cloud.online.pojo.ValidateCodeType;
 import com.li.cloud.online.service.UserInfoService;
+import com.li.cloud.online.service.VideoDataService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -49,6 +51,9 @@ public class UserInfoServiceImpl implements UserInfoService {
 
     @Autowired
     private UserInfoDao userInfoDao;
+
+    @Autowired
+    private ServiceIdConfig serviceIdConfig;
 
     // 注入RedisTemplate工具
     @Autowired
@@ -402,17 +407,18 @@ public class UserInfoServiceImpl implements UserInfoService {
     /** 校验短信验证码 */
     @Override
     public String smsCodeValidate(String validateCode, ServletWebRequest webRequest){
-        // 校验短信验证码是否正确
-        /*ValidateCode code = validateCodeRepository.getCode(webRequest, ValidateCodeType.SMS);
-        if(code == null){
-            return "验证码不存在，请点击发送验证码！";
+        String deviceId = webRequest.getHeader("deviceId");
+        if(StringUtils.isBlank(deviceId)){
+            return "请在请求头中携带deviceId参数";
         }
-        if(code.isExpire()){
-            return "验证码已过期，请重新发送！";
+        // 调用网关接口校验验证码
+        ReturnData returnData = restTemplate.getForObject(serviceIdConfig.getGatewayUrl() + String.format(this.VALIDATE_SMS_CODE, deviceId, validateCode), ReturnData.class);
+        if(null == returnData){
+            return "校验验证码失败：请求对象返回为空";
         }
-        if(!code.getCode().equals(validateCode)){
-            return "短信验证码不正确，请重新输入";
-        }*/
+        if (!returnData.getReturnType().equals(ReturnData.SUCCESS)){
+            return returnData.getContent();
+        }
         return ReturnData.SUCCESS;
     }
 

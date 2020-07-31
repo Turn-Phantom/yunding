@@ -46,7 +46,6 @@ public abstract class AbstractValidateCodeProcessor<C extends ValidateCode> impl
         ValidateCode code = new ValidateCode(validateCode.getCode(), validateCode.getExpireTime());
         validateCodeRepository.save(request, code, ValidateCodeType.SMS);
     }
-
     /** 发送验证码 */
     protected abstract void send(ServletWebRequest request, C validateCode) throws Exception;
 
@@ -56,7 +55,7 @@ public abstract class AbstractValidateCodeProcessor<C extends ValidateCode> impl
     public void validate(ServletWebRequest webRequest) {
         // 通过验证码处理类，获取验证码
         C codeObjInSession = (C) validateCodeRepository.getCode(webRequest, ValidateCodeType.SMS);
-        // 从请求中获取登录的手机验证码
+        // 从请求中获取用户输入的验证码（webRequest）
         String codeInRequest = "";
         try {
             codeInRequest = ServletRequestUtils.getStringParameter(webRequest.getRequest(), "smsCode");

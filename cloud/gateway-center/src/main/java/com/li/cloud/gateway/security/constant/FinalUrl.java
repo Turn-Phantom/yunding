@@ -48,4 +48,6 @@ public interface FinalUrl {
     String RESET_PASSWORD_URL_PASSWORD = "/online/rest/user/resetPasswordForPhone";
     // 获取客服qq
     String QUERY_SERVICE_QQ = "/online/rest/contact/queryServiceQQ";
+    // 校验短信验证码
+    String VALIDATE_SMS_CODE = "/rest/validate/validateSmsCode";
 }

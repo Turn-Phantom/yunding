@@ -20,4 +20,7 @@ public class ServiceIdConfig {
 
     // 队列服务
     private String queueUrl;
+
+    //网关服务
+    private String gatewayUrl;
 }

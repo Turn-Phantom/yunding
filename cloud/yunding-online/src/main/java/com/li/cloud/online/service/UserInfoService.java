@@ -14,7 +14,7 @@ import java.util.Map;
  * @desc 用户信息 逻辑
  * @date 2020-03-31
  */
-public interface UserInfoService {
+public interface UserInfoService extends ConstantData{
 
     /** 用户注册 */
     String register(Map<String, String> registerData, HttpServletRequest request);

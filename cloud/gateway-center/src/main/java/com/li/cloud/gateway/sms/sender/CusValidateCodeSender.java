@@ -3,6 +3,7 @@ package com.li.cloud.gateway.sms.sender;
 import com.li.cloud.common.basecurd.entity.ReturnData;
 import com.li.cloud.gateway.config.params.ServiceIdConfig;
 import com.li.cloud.gateway.security.exception.ValidateCodeException;
+import com.li.cloud.gateway.security.prop.SecurityConfigProp;
 import com.li.cloud.gateway.security.validate.ValidateCodeSender;
 import com.li.cloud.gateway.utils.ConstantUtil;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.client.RestTemplate;
@@ -38,15 +40,16 @@ public class CusValidateCodeSender implements ValidateCodeSender {
     @Autowired
     private ServiceIdConfig serviceIdConfig;
 
+    @Autowired
+    private SecurityConfigProp securityConfigProp;
+
     @Override
     public void send(String mobile, String code, Integer smsType,ServletWebRequest request) {
-        /*if(true){
-            System.out.println("短信验证码测试数据：");
-            System.out.println(mobile);
-            System.out.println(code);
-            System.out.println(smsType);
+        String sendModel = securityConfigProp.getValidateCode().getSendModel();
+        if("dev".equals(sendModel)){
+            logger.info("当前为开发模式，测试验证码为：" + code);
             return;
-        }*/
+        }
         Integer userId;
         try {
             userId = ServletRequestUtils.getIntParameter(request.getRequest(), "userId");

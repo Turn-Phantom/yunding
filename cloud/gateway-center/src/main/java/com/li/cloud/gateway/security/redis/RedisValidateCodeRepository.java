@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 
 import java.util.concurrent.TimeUnit;
@@ -52,7 +53,11 @@ public class RedisValidateCodeRepository implements ValidateCodeRepository {
     private Object buildKey(ServletWebRequest request, ValidateCodeType validateCodeType) {
         String deviceId = request.getHeader("deviceId");
         if(StringUtils.isBlank(deviceId)){
-            throw new ValidateCodeException("请在请求头中携带deviceId参数");
+            String uniqueId = request.getParameter("deviceId");
+            if(StringUtils.isBlank(uniqueId)){
+                throw new ValidateCodeException("请在请求头中携带deviceId参数");
+            }
+            deviceId = uniqueId;
         }
         return "code:" + validateCodeType.toString().toLowerCase() + ":" + deviceId;
     }

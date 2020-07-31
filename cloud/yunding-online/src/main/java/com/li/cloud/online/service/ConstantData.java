@@ -31,4 +31,7 @@ public interface ConstantData {
 
     /** 获取播放频率最高的，高清的10条数据 */
     String QUERY_HEIGHT_VIDEO = "/rest/video/list/queryHeightVideo";
+
+    /** 校验短信验证码 */
+    String VALIDATE_SMS_CODE = "/rest/validate/validateSmsCode?deviceId=%s&smsCode=%s";
 }
